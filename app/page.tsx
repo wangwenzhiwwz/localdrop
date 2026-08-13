@@ -19,6 +19,7 @@ const platformName = () => typeof navigator === "undefined" ? "浏览器" : (/An
 export default function Home() {
   const picker = useRef<HTMLInputElement>(null);
   const socket = useRef<WebSocket | null>(null);
+  const queueRef = useRef<QueueFile[]>([]);
   const receiveBuffers = useRef<Record<string, Record<number, string[]>>>({});
   const [peers, setPeers] = useState<Peer[]>([]);
   const [selected, setSelected] = useState("");
@@ -28,6 +29,8 @@ export default function Home() {
   const [incoming, setIncoming] = useState<Incoming | null>(null);
   const [toast, setToast] = useState("");
   const [me, setMe] = useState("此设备");
+
+  useEffect(() => { queueRef.current = queue; }, [queue]);
 
   function flash(message: string) { setToast(message); setTimeout(() => setToast(""), 3500); }
 
@@ -67,8 +70,9 @@ export default function Home() {
 
   async function transmitFiles(target: string, transferId: string) {
     const chunkSize = 48 * 1024;
-    for (let fileIndex = 0; fileIndex < queue.length; fileIndex++) {
-      const file = queue[fileIndex].file;
+    const filesToSend = queueRef.current;
+    for (let fileIndex = 0; fileIndex < filesToSend.length; fileIndex++) {
+      const file = filesToSend[fileIndex].file;
       for (let offset = 0; offset < file.size; offset += chunkSize) {
         const bytes = new Uint8Array(await file.slice(offset, offset + chunkSize).arrayBuffer());
         let binary = ""; for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
