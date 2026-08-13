@@ -11,6 +11,7 @@
     "start": "vinext start",
     "lan": "node lan-server/server.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "test:lan": "node --test tests/lan-transfer.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
